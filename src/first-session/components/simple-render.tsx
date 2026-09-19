@@ -1,25 +1,26 @@
-import { useState } from "react";
+import VerySlowComponent from "@/first-session/components/very-slow-component";
+import React, { useState } from "react";
 
-export function SimpleRender() {
+type SimpleRenderProps = {
+  children: React.ReactElement;
+};
+
+export function SimpleRender({ children }: SimpleRenderProps) {
   const [counter, setCounter] = useState(0);
-  console.log("Re-Rendered");
+
+  console.log("Rendered");
 
   return (
-    <button
-      onClick={(e) => {
-        console.log("Synthetic Event: ", e, e.target, e.currentTarget);
+    <>
+      <button
+        onClick={() => {
+          setCounter(counter + 1);
+        }}
+      >
+        counter: {counter}
+      </button>
 
-        console.log(
-          "NATIVE: ",
-          e.nativeEvent,
-          e.nativeEvent.target,
-          e.nativeEvent.currentTarget,
-        );
-
-        setCounter((c) => c + 1);
-      }}
-    >
-      Counter {counter}
-    </button>
+      {children}
+    </>
   );
 }

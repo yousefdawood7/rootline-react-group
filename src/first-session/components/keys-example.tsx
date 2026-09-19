@@ -10,11 +10,11 @@ const stableKeysElements = [
 ];
 
 const elementWithoutKey = [
-  { name: "Element Without Key 3" }, // 0
-  { name: "Element Without Key 4" }, // 1
-  { name: "Element Without Key 5" }, // 2
-  { name: "Element Without Key 1" }, // 3
-  { name: "Element Without Key 2" }, // 4
+  { name: "Element Without Key 1" }, // 0
+  { name: "Element Without Key 2" }, // 1
+  { name: "Element Without Key 3" }, // 2
+  { name: "Element Without Key 4" }, // 3
+  { name: "Element Without Key 5" }, // 4
 ];
 
 function handleShuffle<T>(elements: T[]) {
@@ -107,8 +107,8 @@ export default function KeysExamples() {
                   : { duration: 0 }
               }
               className="border px-2 focus:border focus:ring-2 focus:ring-blue-500 outline-none"
-              id={"" + index}
-              key={index}
+              id={"" + crypto.randomUUID()}
+              key={crypto.randomUUID()}
               defaultValue={element.name}
             />
           ))}
