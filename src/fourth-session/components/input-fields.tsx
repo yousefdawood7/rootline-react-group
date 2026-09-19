@@ -1,29 +1,29 @@
 import { Input } from "@/components/ui/input";
-import { useStore } from "@/fourth-session/state-manager/hooks/useStore";
+import { useProvider } from "@/fourth-session/state-manager/hooks/useStore";
 
 export function InputText() {
-  const [store, setStore] = useStore((value) => value.name);
+  const [state, setState] = useProvider((el) => el.name);
 
   return (
     <div>
       <label>Name</label>
       <Input
-        value={store}
-        onChange={(e) => setStore({ name: e.target.value })}
+        value={state}
+        onChange={(e) => setState({ name: e.target.value })}
       />
     </div>
   );
 }
 
 export function InputEmail() {
-  const [store, setStore] = useStore((value) => value.email);
+  const [state, setState] = useProvider((el) => el.email);
 
   return (
     <div>
       <label>Email</label>
       <Input
-        value={store}
-        onChange={(e) => setStore({ email: e.target.value })}
+        value={state}
+        onChange={(e) => setState({ email: e.target.value })}
       />
     </div>
   );
