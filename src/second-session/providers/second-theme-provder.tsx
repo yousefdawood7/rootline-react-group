@@ -1,5 +1,5 @@
-import React, { createContext, useState } from "react";
-
+import React, { useState } from "react";
+import { createContext } from "use-context-selector";
 // eslint-disable-next-line react-refresh/only-export-components
 export const ThemeContext2 = createContext<
   | undefined
@@ -17,8 +17,8 @@ export function SecondThemeProvider({ children }: SecondThemeProvider) {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   return (
-    <ThemeContext2 value={{ isDarkMode, setIsDarkMode }}>
+    <ThemeContext2.Provider value={{ isDarkMode, setIsDarkMode }}>
       {children}
-    </ThemeContext2>
+    </ThemeContext2.Provider>
   );
 }

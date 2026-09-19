@@ -1,12 +1,12 @@
 import FlashComponent from "@/second-session/components/flash-component";
-import { useTheme } from "@/second-session/hooks/useTheme";
+import { ThemeContext2 } from "@/second-session/providers/second-theme-provder";
+import { useContextSelector } from "use-context-selector";
 
-type IsDarkModeProps = {
-  isFirst: boolean;
-};
-
-export default function IsDarkMode({ isFirst = true }: IsDarkModeProps) {
-  const { isDarkMode } = useTheme({ isFirst });
+export default function IsDarkMode() {
+  const isDarkMode = useContextSelector(
+    ThemeContext2,
+    (value) => value?.isDarkMode,
+  );
 
   return (
     <FlashComponent>

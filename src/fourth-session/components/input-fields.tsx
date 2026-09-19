@@ -1,5 +1,5 @@
 import { Input } from "@/components/ui/input";
-import { useStore } from "@/fourth-session/state-manager/hooks/useStore";
+import { useStore } from "@/fourth-session/components/store-provider";
 
 export function InputText() {
   const [name, setState] = useStore((store) => store.name);

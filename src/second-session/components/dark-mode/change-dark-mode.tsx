@@ -1,19 +1,17 @@
 import { Button } from "@/components/ui/button";
 import FlashComponent from "@/second-session/components/flash-component";
-import { useTheme } from "@/second-session/hooks/useTheme";
+import { ThemeContext2 } from "@/second-session/providers/second-theme-provder";
+import { useContextSelector } from "use-context-selector";
 
-type ChangeDarkModeProps = {
-  isFirst: boolean;
-};
-
-export default function ChangeDarkMode({
-  isFirst = true,
-}: ChangeDarkModeProps) {
-  const { setIsDarkMode } = useTheme({ isFirst }).setIsDarkMode;
+export default function ChangeDarkMode() {
+  const setIsDarkMode = useContextSelector(
+    ThemeContext2,
+    (value) => value?.setIsDarkMode,
+  );
 
   return (
     <FlashComponent>
-      <Button onClick={() => setIsDarkMode((dark) => !dark)}>
+      <Button onClick={() => setIsDarkMode?.((dark) => !dark)}>
         Toggle Dark Mode
       </Button>
     </FlashComponent>
