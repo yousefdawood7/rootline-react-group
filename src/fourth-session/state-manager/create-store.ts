@@ -1,25 +1,25 @@
+type Listener<T> = (value: T) => void;
 type SetState<T> = T | ((prev: T) => T);
 
 export const createStore = function <T extends Record<string, unknown>>(
   initialState: T,
 ) {
   let store = initialState;
-  const subscribers = new Set<(value: T) => void>();
+  const listeners: Set<Listener<T>> = new Set();
 
   return {
     getStore: () => store,
-    setState: (state: SetState<Partial<T>>) => {
+    setStore: (value: SetState<Partial<T>>) => {
       store = {
         ...store,
-        ...(typeof state === "function" ? state(store) : state),
+        ...(typeof value === "function" ? value(store) : value),
       };
 
-      subscribers.forEach((sub) => sub(store));
+      listeners.forEach((listener) => listener(store));
     },
-
-    subscribe: (callback: (value: T) => void) => {
-      subscribers.add(callback);
-      return () => subscribers.delete(callback);
+    subscribe: (listener: Listener<T>) => {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
     },
   };
 };
