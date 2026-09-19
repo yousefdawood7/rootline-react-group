@@ -1,28 +1,27 @@
-import { store } from "@/fourth-session/store";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { store } from "@/fourth-session/state-manager/store";
+import { useEffect, useEffectEvent, useState } from "react";
 
-type StoreReturn = ReturnType<(typeof store)["getStore"]>;
-type Selector = (storeSelector: StoreReturn) => StoreReturn[keyof StoreReturn];
+type SelectorObject = ReturnType<(typeof store)["getStore"]>;
+type Selector = (
+  storeSelector: SelectorObject,
+) => SelectorObject[keyof SelectorObject];
 
 export const useStore = function (selector: Selector) {
-  // const [state, setState] = useState(() => selector(store.getStore()));
-  //
-  // useEffect(() => {
-  //   const unsubscribe = store.subscribe((payload) => {
-  //     const resolved =
-  //       typeof payload === "function" ? payload(store.getStore()) : payload;
-  //
-  //     setState(selector(resolved));
-  //   });
-  //
-  //   return () => {
-  //     unsubscribe();
-  //   };
-  // }, [selector]);
+  const [state, setState] = useState(() => selector(store.getStore()));
 
-  const state = useSyncExternalStore(store.subscribe, () =>
-    selector(store.getStore()),
+  const effectEvent = useEffectEvent(
+    (payload: ReturnType<(typeof store)["getStore"]>) => {
+      setState(selector(payload));
+    },
   );
 
-  return [state, store.setStore] as const;
+  useEffect(() => {
+    const unsubscribe = store.subscribe(effectEvent);
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  return [state, store.setState] as const;
 };

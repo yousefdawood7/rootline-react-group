@@ -1,4 +1,4 @@
-type SetState<T> = T | ((prevValue: T) => T);
+type SetState<T> = T | ((prev: T) => T);
 
 export const createStore = function <T extends Record<string, unknown>>(
   initialState: T,
@@ -8,18 +8,18 @@ export const createStore = function <T extends Record<string, unknown>>(
 
   return {
     getStore: () => store,
-    setStore: (value: SetState<Partial<T>>) => {
+    setState: (state: SetState<Partial<T>>) => {
       store = {
         ...store,
-        ...(typeof value === "function" ? value(store) : value),
+        ...(typeof state === "function" ? state(store) : state),
       };
 
       subscribers.forEach((sub) => sub(store));
     },
 
-    subscribe(subscriber: (value: SetState<T>) => void) {
-      subscribers.add(subscriber);
-      return () => subscribers.delete(subscriber);
+    subscribe: (callback: (value: T) => void) => {
+      subscribers.add(callback);
+      return () => subscribers.delete(callback);
     },
   };
 };
