@@ -11,51 +11,86 @@ import React, {
 } from "react";
 
 export const createEmitterProvider = function <
-  T extends Record<string, unknown>,
->() {
-  type EmitterType = InstanceType<typeof EventEmitter<T>>;
-
-  const EmitterContext = createContext<undefined | EmitterType>(undefined);
+  TEvent extends Record<string, unknown>,
+>(channelMessage?: string) {
+  const EmitterContext = createContext<
+    undefined | { bus: EventEmitter<TEvent>; channel: BroadcastChannel | null }
+  >(undefined);
 
   function Provider({ children }: { children: React.ReactNode }) {
-    const emitterRef = useRef<EmitterType>(null);
+    const busRef = useRef<EventEmitter<TEvent>>(null);
 
-    // prettier-ignore
-    if (!emitterRef.current)
-      emitterRef.current = new EventEmitter<T>();
+    const channelRef = useRef<BroadcastChannel>(null);
+
+    if (!busRef.current) busRef.current = new EventEmitter<TEvent>();
+
+    if (!channelRef.current && channelMessage)
+      channelRef.current = new BroadcastChannel(channelMessage);
+
+    useEffect(() => {
+      const abortController = new AbortController();
+
+      channelRef.current?.addEventListener(
+        "message",
+        <K extends keyof TEvent>(
+          e: MessageEvent<{ eventName: K; payload: TEvent[K] }>,
+        ) => {
+          busRef.current?.emit(e.data.eventName, e.data.payload);
+        },
+        { signal: abortController.signal },
+      );
+
+      return () => {
+        channelRef.current?.close();
+        abortController.abort();
+      };
+    }, []);
 
     return (
-      <EmitterContext value={emitterRef.current}>{children}</EmitterContext>
+      <EmitterContext
+        value={{ bus: busRef.current, channel: channelRef.current }}
+      >
+        {children}
+      </EmitterContext>
     );
   }
 
-  function useSubscribe<K extends keyof T>(
+  function useSubscribe<K extends keyof TEvent>(
     eventName: K,
-    handler: Listener<T[K]>,
+    handler: Listener<TEvent[K]>,
   ) {
-    const bus = use(EmitterContext);
+    const data = use(EmitterContext);
 
-    if (bus === undefined)
-      throw new Error("useProvider used out of its context");
+    if (data === undefined)
+      throw new Error("useSubscribe used out of its context");
 
-    const eventCallback = useEffectEvent(handler);
+    const { bus } = data;
+
+    const effectEvent = useEffectEvent(handler);
 
     useEffect(() => {
-      const unsubscribe = bus.on(eventName, eventCallback);
-      return () => unsubscribe();
-    }, [bus, eventName]);
+      const unSubscribe = bus.on(eventName, effectEvent);
 
-    return bus.emit;
+      return () => {
+        unSubscribe();
+      };
+    }, [eventName, bus]);
   }
 
-  function useEmit() {
-    const bus = use(EmitterContext);
+  function useEmit<K extends keyof TEvent>() {
+    const data = use(EmitterContext);
 
-    if (bus === undefined)
-      throw new Error("useProvider used out of its context");
+    if (data === undefined)
+      throw new Error("useSubscribe used out of its context");
 
-    return bus.emit;
+    const { bus, channel } = data;
+
+    function handlePostMessage(eventName: K, payload: TEvent[K]) {
+      channel?.postMessage({ eventName, payload });
+    }
+
+    return [bus.emit, handlePostMessage] as const;
   }
 
-  return { Provider, useEmit, useSubscribe };
+  return { Provider, useSubscribe, useEmit };
 };

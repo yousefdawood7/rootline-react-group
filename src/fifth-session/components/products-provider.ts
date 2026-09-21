@@ -12,4 +12,4 @@ export const {
   Provider: ProductProvider,
   useEmit: useProductEmitter,
   useSubscribe: useProductSubscriber,
-} = createEmitterProvider<ProductsEvents>();
+} = createEmitterProvider<ProductsEvents>("test_test");
