@@ -20,14 +20,14 @@ export const createStoreProvider = function <T extends Record<string, unknown>>(
     return <Context value={storeRef.current}>{children}</Context>;
   }
 
-  function useStore(selector: SelectorFor<ReturnType<Store["getStore"]>>) {
+  function useStore(selector?: SelectorFor<ReturnType<Store["getStore"]>>) {
     const storeContex = use(Context);
 
     if (storeContex === undefined)
       throw new Error("useStore used out of its provider");
 
     const data = useSyncExternalStore(storeContex.subscribe, () =>
-      selector(storeContex.getStore()),
+      selector?.(storeContex.getStore()),
     );
 
     return [data, storeContex.setStore] as const;
